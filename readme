@@ -1,0 +1,11 @@
+Steps:
+
+1. Install libraries 
+    -> streamlit
+    -> pandas
+    -> plotly 
+2. Run 
+    -> streamlit run app.py --server.port 8000
+    or 
+    -> streamlit run app.py
+

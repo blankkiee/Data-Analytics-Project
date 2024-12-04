@@ -1,9 +1,9 @@
-import streamlit as st\
+import streamlit as st
     
 #COLOR MODE
 def set_page_mode(mode):
  
-    if mode == "Dark": # Number 1
+    if mode == "Dark": # Number 
         st.markdown("""
             <style>
             .stApp {background: linear-gradient(500deg, #152133, #152133); color: #ffffff;}
