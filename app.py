@@ -50,15 +50,31 @@ if uploaded_file:
             st.write("### Full Data Table")
             st.write(df)
             
-# Wrong Logic
+    # Add a Textbox Under Visualization
+        st.write("### Comments or Observations")
+        comments = st.text_area(
+            "Add your comments or observations about the visualization here:",
+            placeholder="Enter your thoughts...",
+            height=200
+        )
+        
         # Generate Report Button
-        if st.button("Generate Report"):
-            st.download_button(
-                label="Download CSV Report",
-                data=df.to_csv(index=False),
-                file_name="generated_report.csv",
-                mime="text/csv",
-            )
+        st.write("### Generate Report")
+        
+        # Prepare data for report
+        report_data = {
+            "Cleaned Data": df,
+            "User Comments": comments
+        }
+# # Wrong Logic
+#         # Generate Report Button
+#         if st.button("Generate Report"):
+#             st.download_button(
+#                 label="Download CSV Report",
+#                 data=df.to_csv(index=False),
+#                 file_name="generated_report.csv",
+#                 mime="text/csv",
+#             )
 
     except Exception as e:
         st.error(f"An error occurred while processing the file: {e}")
