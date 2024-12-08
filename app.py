@@ -5,6 +5,7 @@ from sidebar import create_sidebar
 from theme import set_page_mode
 from header import render_header
 from data_utils import clean_data
+from aitest import generate_comments
 
 # Main app
 st.set_page_config(layout="wide")
@@ -66,15 +67,19 @@ if uploaded_file:
             "Cleaned Data": df,
             "User Comments": comments
         }
-# # Wrong Logic
-#         # Generate Report Button
-#         if st.button("Generate Report"):
-#             st.download_button(
-#                 label="Download CSV Report",
-#                 data=df.to_csv(index=False),
-#                 file_name="generated_report.csv",
-#                 mime="text/csv",
-#             )
+# Wrong Logic
+        # Generate Report Button
+        if st.button("Generate Report"):
+            st.download_button(
+                label="Download CSV Report",
+                data=df.to_csv(index=False),
+                file_name="generated_report.csv",
+                mime="text/csv",
+            )
+        if st.button("Test Button"):
+            pass
+
+
 
     except Exception as e:
         st.error(f"An error occurred while processing the file: {e}")
