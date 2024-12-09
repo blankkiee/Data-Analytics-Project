@@ -2,8 +2,5 @@ import streamlit as st
 
 def render_header():
     st.markdown("""
-        <div class="header-container">
-            <h1 class="">Pogi Only Dashboard</h1>
-            <p class="">"Make your data handsome with Pogi Only Dashboard"</p>
-        </div>
+            <h1 style="text-align:center">Make your data Pogi</h1>
     """, unsafe_allow_html=True)
