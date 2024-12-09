@@ -61,7 +61,7 @@ if uploaded_file:
         suggestion = suggest_chart(x_axis, x_axis_dtype, y_axis, y_axis_dtype)
         st.markdown("<br>", unsafe_allow_html=True)
 
-        # st.markdown(f"<label style='font-weight: bold; font-size: 14px;'>{suggestion}</label>", unsafe_allow_html=True)
+        st.markdown(f"<label style='font-weight: bold; font-size: 14px;'>{suggestion}</label>", unsafe_allow_html=True)
         # Chart Type Dropdown Below the Axes
         st.markdown("<label style='font-weight: bold; font-size: 14px;'>Chart Type</label>", unsafe_allow_html=True)
         chart_type = st.selectbox("", ["Bar Chart", "Line Chart", "Scatter Plot", "Table"], key="chart_type")
