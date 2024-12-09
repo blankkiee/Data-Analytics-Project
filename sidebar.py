@@ -1,6 +1,6 @@
 import streamlit as st
 
-def create_sidebar(uploaded_file, df=None):
+def create_sidebar(uploaded_file):
     with st.sidebar:
         # LOGO
         st.image("./img/pogionly.png", caption="Your data deserves a dash of Pogi style!", width=200)
@@ -17,9 +17,10 @@ def create_sidebar(uploaded_file, df=None):
         
         # If no file is uploaded, return early
         if not uploaded_file:
-            return mode, uploaded_file, None, None, None
+            return mode, uploaded_file, None, None
         
         # Number of rows to display
+        # You can change max value to be displayed
         num_rows = st.slider("Number of rows to display in preview", min_value=5, max_value=100, value=10, step=5)
         
         # Data Cleaning Options
@@ -31,17 +32,6 @@ def create_sidebar(uploaded_file, df=None):
                 "Handle missing values",
                 ["None", "Drop rows with missing values", "Fill missing values with 0"]
             ),
-            
         }
-
-        # If sorting is enabled, show additional options
-        # if clean_data_options["Sort data"] and df is not None:
-        #     clean_data_options["Sort column"] = st.selectbox("Select column to sort by:", df.columns)
-        #     clean_data_options["Sort order"] = st.radio("Sort order:", ["Ascending", "Descending"])
         
-        # Visualization Options
-        st.header("Visualization Options")
-        visualization_options = ["Bar Chart", "Line Chart", "Scatter Plot", "Table"]
-        selected_visualization = st.selectbox("Select Visualization", visualization_options)
-        
-        return mode, uploaded_file, selected_visualization, num_rows, clean_data_options
+        return mode, uploaded_file, num_rows, clean_data_options

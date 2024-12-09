@@ -11,7 +11,7 @@ st.set_page_config(layout="wide")
 
 # Sidebar logic
 uploaded_file = None  # Initialize file
-mode, uploaded_file, selected_visualization, num_rows, clean_data_options = create_sidebar(uploaded_file)
+mode, uploaded_file, num_rows, clean_data_options = create_sidebar(uploaded_file)
 
 # Set page mode
 set_page_mode(mode)
@@ -32,23 +32,32 @@ if uploaded_file:
         st.write(f"### Cleaned Data Preview ({num_rows} rows)")
         st.write(df.head(num_rows))
 
-        # Visualization
-        if selected_visualization == "Bar Chart":
-            x_axis = st.selectbox("Select X-Axis", df.columns)
-            y_axis = st.selectbox("Select Y-Axis", df.columns)
+        #  Revised Layout for X and Y Axis Dropdowns
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.markdown("<label style='font-weight: bold; font-size: 14px;'>X-Axis</label>", unsafe_allow_html=True)
+            x_axis = st.selectbox("", df.columns, key="x_axis")
+
+        with col2:
+            st.markdown("<label style='font-weight: bold; font-size: 14px;'>Y-Axis</label>", unsafe_allow_html=True)
+            y_axis = st.selectbox("", df.columns, key="y_axis")
+
+        # Chart Type Dropdown Below the Axes
+        st.markdown("<label style='font-weight: bold; font-size: 14px;'>Chart Type</label>", unsafe_allow_html=True)
+        chart_type = st.selectbox("", ["Bar Chart", "Line Chart", "Scatter Plot", "Table"], key="chart_type")
+
+        # Chart Rendering Logic
+        if chart_type == "Bar Chart":
             fig = px.bar(df, x=x_axis, y=y_axis, title=f"Bar Chart of {y_axis} vs {x_axis}")
             st.plotly_chart(fig, use_container_width=True)
-        elif selected_visualization == "Line Chart":
-            x_axis = st.selectbox("Select X-Axis", df.columns)
-            y_axis = st.selectbox("Select Y-Axis", df.columns)
+        elif chart_type == "Line Chart":
             fig = px.line(df, x=x_axis, y=y_axis, title=f"Line Chart of {y_axis} over {x_axis}")
             st.plotly_chart(fig, use_container_width=True)
-        elif selected_visualization == "Scatter Plot":
-            x_axis = st.selectbox("Select X-Axis", df.columns)
-            y_axis = st.selectbox("Select Y-Axis", df.columns)
+        elif chart_type == "Scatter Plot":
             fig = px.scatter(df, x=x_axis, y=y_axis, title=f"Scatter Plot of {y_axis} vs {x_axis}")
             st.plotly_chart(fig, use_container_width=True)
-        elif selected_visualization == "Table":
+        elif chart_type == "Table":
             st.write("### Full Data Table")
             st.write(df)
 
