@@ -10,8 +10,8 @@ model = genai.GenerativeModel("gemini-1.5-flash")
 
 
 
-def generate_comments(image):
-    response = model.generate_content(["Using image, can you explain what can be concluded from this chart? Give estimates on each data. simplify words to make it understandable. Take note on what is the highest and lowest if it matters. Do not include asterisks in your response", image])
+def generate_comments(json):
+    response = model.generate_content(["Pretend you're a data analyst. Without using asterisks in your response, pretend this json is a graph and explain what can be concluded from this graph. simplify words to make it understandable. If there are spikes on something, maybe include a guess for the reason that is", json])
     return response.text
 
 def suggest_chart(x, x_type, y, y_type, agg_method):
