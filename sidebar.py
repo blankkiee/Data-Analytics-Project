@@ -54,10 +54,9 @@ def create_sidebar(uploaded_file, df):
                     sample_value = df[y_axis].iloc[0] 
                     y_axis_dtype = type(sample_value).__name__
 
-            suggestion = suggest_chart(x_axis, x_axis_dtype, y_axis, y_axis_dtype)
-            # st.markdown("<br>", unsafe_allow_html=True)
-
-            st.write(suggestion)
+            # suggestion = suggest_chart(x_axis, x_axis_dtype, y_axis, y_axis_dtype)
+            # st.write(suggestion)
+            
             # Chart Type Dropdown Below the Axes
             # st.markdown("<label style='font-weight: bold; font-size: 14px;'>Chart Type</label>", unsafe_allow_html=True)
             chart_type = st.selectbox("Chart Type", ["Bar Chart", "Line Chart", "Scatter Plot", "Table"], key="chart_type")
