@@ -8,6 +8,9 @@ from header import render_header
 from data_utils import clean_data
 from aitest import generate_comments, suggest_chart
 from PIL import Image
+from docx import Document
+from docx.shared import Pt
+
 
 # CSS for the bubble animation
 bubble_css = """
@@ -224,24 +227,59 @@ if uploaded_file:
                 st.rerun()
 
 
+            # Your existing code
             st.write("### Generate Report")
             if st.button("Generate Report"):
                 if comments.strip():
-                    csv_data = df.to_csv(index=False)
-                    full_report = f"User Comments:\n\n{comments}\n\nCleaned Data:\n{csv_data}"
+                    # Create a Word document
+                    doc = Document()
+                    doc.add_heading('Report with Comments', 0)
+                    
+                    # Add comments to the document
+                    doc.add_heading('User Comments:', level=1)
+                    for line in comments.split('\n'):
+                        paragraph = doc.add_paragraph()
+                        run = paragraph.add_run(line)
+                        run.font.size = Pt(12)
+
+                    # Add some additional text content
+                    doc.add_heading('Additional Information:', level=1)
+                    doc.add_paragraph("Here you can add any additional information or summaries related to your data and analysis.")
+
+                    # Save the document to a BytesIO object
+                    buffer = BytesIO()
+                    doc.save(buffer)
+                    buffer.seek(0)
+
+                    # Provide a download button for the Word document
                     st.download_button(
-                        label="Download CSV Report",
-                        data=full_report,
-                        file_name="report_with_comments.csv",
-                        mime="text/csv"
+                        label="Download DOCX Report",
+                        data=buffer,
+                        file_name="report_with_comments.docx",
+                        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                     )
                 else:
                     st.warning("Please add comments before generating the report.")
+
+            # st.write("### Generate Report")
+            # if st.button("Generate Report"):
+            #     if comments.strip():
+            #         csv_data = df.to_csv(index=False)
+            #         full_report = f"User Comments:\n\n{comments}\n\nCleaned Data:\n{csv_data}"
+            #         st.download_button(
+            #             label="Download CSV Report",
+            #             data=full_report,
+            #             file_name="report_with_comments.csv",
+            #             mime="text/csv"
+            #         )
+            #     else:
+            #         st.warning("Please add comments before generating the report.")
     except Exception as e:
         st.error(f"An error occurred while processing the file: {e}")
 else:
     st.warning("🔴 Please upload a CSV file to start.")
     pass
+
 
 
 
