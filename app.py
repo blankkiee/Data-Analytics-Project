@@ -24,7 +24,7 @@ if "text_area_content" not in st.session_state:
     st.session_state.text_area_content = ""
 
 if "chart_data" not in st.session_state:
-    st.session_state.chart_data = None,None,None,None,None,
+    st.session_state.chart_data = None,None,None,None,None,None
 
 # Sidebar logic
 uploaded_file = None  # Initialize file
@@ -59,16 +59,16 @@ if uploaded_file:
 
 
         # Chart Rendering Logic
-        chart_type, x_axis, y_axis, x_axis_dtype, y_axis_dtype = st.session_state.chart_data
+        chart_type, x_axis, y_axis, x_axis_dtype, y_axis_dtype, df_counts = st.session_state.chart_data
         if chart_type:
             if chart_type == "Bar Chart":
-                fig = px.bar(df, x=x_axis, y=y_axis, title=f"Bar Chart of {y_axis} vs {x_axis}")
+                fig = px.bar(df_counts, x=x_axis, y=y_axis, title=f"Bar Chart of {y_axis} vs {x_axis}")
                 st.plotly_chart(fig, use_container_width=True)
             elif chart_type == "Line Chart":
-                fig = px.line(df, x=x_axis, y=y_axis, title=f"Line Chart of {y_axis} over {x_axis}")
+                fig = px.line(df_counts, x=x_axis, y=y_axis, title=f"Line Chart of {y_axis} over {x_axis}")
                 st.plotly_chart(fig, use_container_width=True)
             elif chart_type == "Scatter Plot":
-                fig = px.scatter(df, x=x_axis, y=y_axis, title=f"Scatter Plot of {y_axis} vs {x_axis}")
+                fig = px.scatter(df_counts, x=x_axis, y=y_axis, title=f"Scatter Plot of {y_axis} vs {x_axis}")
                 st.plotly_chart(fig, use_container_width=True)
             elif chart_type == "Table":
                 st.write("### Full Data Table")
