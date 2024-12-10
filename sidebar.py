@@ -60,12 +60,14 @@ def create_sidebar(uploaded_file, df):
             # Aggregation method dropdown
             aggregation_method = st.selectbox(
                 "Aggregation Method", 
-                ["Sum", "Average", "Count", "Min", "Max", "Median", "Mode"], 
+                ["Count", "Sum", "Average", "Min", "Max", "Median", "Mode"], 
                 key="aggregation_method"
             )
 
+            suggestion = suggest_chart(x_axis, x_axis_dtype, y_axis, y_axis_dtype, aggregation_method)
+            st.write(suggestion)
             # Chart Type Dropdown Below the Axes
-            chart_type = st.selectbox("Chart Type", ["Bar Chart", "Line Chart", "Scatter Plot", "Table"], key="chart_type")
+            chart_type = st.selectbox("Chart Type", ["Bar Chart", "Line Chart", "Scatter Plot", "Grouped Bar Chart", "Table"], key="chart_type")
             if st.button("Visualize!"):
                 # Apply aggregation if selected
                 if aggregation_method == "Count" or x_axis_dtype == 'object' or y_axis_dtype == 'object': 
@@ -88,5 +90,4 @@ def create_sidebar(uploaded_file, df):
 
                 st.session_state.chart_data = chart_type, x_axis, y_axis, x_axis_dtype, y_axis_dtype, df_counts
                 return clean_data_options
-
         return clean_data_options
