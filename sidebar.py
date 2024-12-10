@@ -70,14 +70,14 @@ def create_sidebar(uploaded_file, df):
             # Aggregation method dropdown
             aggregation_method = st.selectbox(
                 "Aggregation Method", 
-                ["Count", "Sum", "Average", "Min", "Max", "Median", "Mode"], 
+                ["Individual", "Count", "Sum", "Average", "Min", "Max", "Median", "Mode"], 
                 key="aggregation_method"
             )
 
             suggestion = suggest_chart(x_axis, x_axis_dtype, y_axis, y_axis_dtype, aggregation_method)
             st.write(suggestion)
             # Chart Type Dropdown Below the Axes
-            chart_type = st.selectbox("Chart Type", ["Bar Chart", "Line Chart", "Scatter Plot", "Grouped Bar Chart", "Table"], key="chart_type")
+            chart_type = st.selectbox("Chart Type", ["Bar Chart", "Line Chart", "Scatter Plot", "Grouped Bar Chart", "Layered Histogram", "Table"], key="chart_type")
             if st.button("Visualize!"):
                 # Apply aggregation if selected
                 if aggregation_method == "Count" or x_axis_dtype == 'object' or y_axis_dtype == 'object': 
@@ -101,4 +101,24 @@ def create_sidebar(uploaded_file, df):
                 st.session_state.chart_data = chart_type, x_axis, y_axis, x_axis_dtype, y_axis_dtype, df_counts
                 st.session_state.agg_method = aggregation_method
                 return clean_data_options
+            
+        # with st.expander("Predict"):
+        #     st.write("Make a prediction")
+        #     col1, col2 = st.columns(2)
+        #     with col1:
+        #         # x-axis selectbox
+        #         x_axis = st.selectbox("X axis", df.columns, key="x_axis")
+        #         x_axis_dtype = df[x_axis].dtype
+        #         if x_axis_dtype == 'object': 
+        #             sample_value = df[x_axis].iloc[0] 
+        #             x_axis_dtype = type(sample_value).__name__
+
+        #     with col2:
+        #         # y-axis selectbox
+                
+        #         y_axis = st.selectbox("Y axis", df.columns, key="y_axis")
+        #         y_axis_dtype = df[y_axis].dtype
+        #         if y_axis_dtype == 'object': 
+        #             sample_value = df[y_axis].iloc[0] 
+        #             y_axis_dtype = type(sample_value).__name__
         return clean_data_options

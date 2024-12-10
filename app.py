@@ -44,6 +44,14 @@ if uploaded_file:
         df = pd.read_csv(uploaded_file)
         if "df" not in st.session_state:
             st.session_state.df = df
+        
+        currency_columns = []
+        for column in df.columns: 
+            if isinstance(df[column].iloc[0], str) and df[column].iloc[0].startswith('$'): 
+                currency_columns.append(column)
+        
+        for column in currency_columns: 
+            df[column] = df[column].replace({'\$': '', ',': ''}, regex=True).astype(float)
 
         clean_data_options = create_sidebar(uploaded_file, st.session_state.df)
 
@@ -68,6 +76,7 @@ if uploaded_file:
             alt_save.save(chart, buffer, fmt='png') 
             buffer.seek(0) 
             return Image.open(buffer)
+        
         
         if chart_type:
             y_axis_name = 'counts' if 'counts' in df_counts else y_axis
@@ -117,7 +126,7 @@ if uploaded_file:
                     y=alt.Y('sum(counts):Q', title='Counts'), 
                     color=f'{y_axis}:N', 
                     # column=f'{y_axis}:N', 
-                    tooltip=[x_axis, y_axis, 'counts'] 
+                    # tooltip=[x_axis, y_axis, 'counts'] 
                     ).properties( 
                         title=f"Grouped Bar Chart of {agg_method} {y_axis} vs {x_axis}", 
                         width=100, 
@@ -127,6 +136,19 @@ if uploaded_file:
                         titleFontSize=14 
                         ).interactive() 
                 
+                st.altair_chart(chart, use_container_width=True)
+
+            elif chart_type == "Layered Histogram": 
+                st.write("### Layered Histogram") 
+                chart = alt.Chart(df_counts).mark_bar(opacity=0.5).encode( 
+                    x=alt.X(f'{x_axis}:Q', bin=alt.Bin(maxbins=30), title=x_axis), 
+                    y=alt.Y('count()', title='Count'), 
+                    color=f'{y_axis}:N', 
+                    tooltip=[x_axis, y_axis] 
+                    ).properties( 
+                        title=f"Layered Histogram of {y_axis} vs {x_axis}", 
+                        width=800, height=400 
+                        ).interactive() 
                 st.altair_chart(chart, use_container_width=True)
 
             # Add comments and download options
