@@ -29,6 +29,12 @@ if "chart_data" not in st.session_state:
 if "agg_method" not in st.session_state:
     st.session_state.agg_method = None
 
+if "is_clean" not in st.session_state:
+    st.session_state.is_clean = True
+
+if "prediction_chart" not in st.session_state:
+    st.session_state.prediction_chart = None, None, None
+
 uploaded_file = None  # Initialize file
 
 # Set page mode
@@ -151,6 +157,11 @@ if uploaded_file:
                         ).interactive() 
                 st.altair_chart(chart, use_container_width=True)
 
+            pred_chart, pred_x, pred_y = st.session_state.prediction_chart
+            if pred_chart:
+                st.write(f"### Prediction of {pred_x} vs {pred_y}")
+                st.altair_chart(pred_chart, use_container_width=True)
+
             # Add comments and download options
             st.write("### Comments or Observations")
 
@@ -164,7 +175,8 @@ if uploaded_file:
                 with st.spinner('Generating comments with AI...'):
                     chart_json = chart.to_json()
                     # image = save_chart(chart)
-                    response = generate_comments(chart_json)
+                    pred_json = pred_chart.to_json()
+                    response = generate_comments(chart_json, pred_json)
                     st.session_state.text_area_content = f"{response}"
                     st.rerun()
 
@@ -177,10 +189,10 @@ if uploaded_file:
                         doc.add_heading('Report from PogiOnly', 0)
                         
                         # Add image
-                        buffer = BytesIO()
-                        chart.save(buffer, format="png")
-                        buffer.seek(0)
-                        image = Image.open(buffer)
+                        buffer_main = BytesIO()
+                        chart.save(buffer_main, format="png")
+                        buffer_main.seek(0)
+                        image = Image.open(buffer_main)
                         with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp_file:
                             image.save(tmp_file.name)
                             doc.add_heading('Generated Image:', level=1)
@@ -188,6 +200,19 @@ if uploaded_file:
                             run = p.add_run()
                             run.add_picture(tmp_file.name, width=Inches(4))  # Adjust the width as needed
                             p.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+                        
+                        if pred_chart:
+                            buffer_pred = BytesIO()
+                            pred_chart.save(buffer_pred, format="png")
+                            buffer_pred.seek(0)
+                            image = Image.open(buffer_pred)
+                            with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp_file:
+                                image.save(tmp_file.name)
+                                doc.add_heading('Generated Prediction Image:', level=1)
+                                p = doc.add_paragraph()
+                                run = p.add_run()
+                                run.add_picture(tmp_file.name, width=Inches(4))  # Adjust the width as needed
+                                p.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
                         
                         # Add comments to the document
                         doc.add_heading('User Comments:', level=1)
