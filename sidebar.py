@@ -89,5 +89,6 @@ def create_sidebar(uploaded_file, df):
                     df_counts = df
 
                 st.session_state.chart_data = chart_type, x_axis, y_axis, x_axis_dtype, y_axis_dtype, df_counts
+                st.session_state.agg_method = aggregation_method
                 return clean_data_options
         return clean_data_options
