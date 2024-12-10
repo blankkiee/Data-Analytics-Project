@@ -1,3 +1,4 @@
+import numpy as np
 import streamlit as st
 from aitest import suggest_chart
 
@@ -20,10 +21,18 @@ def create_sidebar(uploaded_file, df):
         # Navigation
         st.markdown("Upload a CSV file, clean your data, and choose visualization options.")
 
+        numeric_columns = df.select_dtypes(include=[np.number]).columns
+        if not df[numeric_columns].applymap(np.isreal).all().all():
+            st.warning("Data contains non-numeric values in numeric columns", icon="🟡")
+
         if df.isnull().values.any():
-            st.info("🟡 Data is dirty")
+            st.warning("Data contains missing values", icon="🟡")
+
+        elif df.duplicated().any():
+            st.warning("Data contains duplicate rows", icon="🟡")
+
         else:
-            st.info("🟢 Data is clean")
+            st.info("Data is clean", icon="🟢")
         
         # Data Cleaning Options
         st.divider()
@@ -51,6 +60,7 @@ def create_sidebar(uploaded_file, df):
 
             with col2:
                 # y-axis selectbox
+                
                 y_axis = st.selectbox("Y axis", df.columns, key="y_axis")
                 y_axis_dtype = df[y_axis].dtype
                 if y_axis_dtype == 'object': 

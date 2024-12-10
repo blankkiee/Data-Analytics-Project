@@ -13,6 +13,7 @@ from docx import Document
 from docx.shared import Pt, Inches
 import tempfile
 import altair_saver as alt_save
+from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 
 # Main app
 st.set_page_config(layout="wide")
@@ -41,7 +42,10 @@ if uploaded_file:
     try:
         # Load uploaded CSV
         df = pd.read_csv(uploaded_file)
-        clean_data_options = create_sidebar(uploaded_file, df)
+        if "df" not in st.session_state:
+            st.session_state.df = df
+
+        clean_data_options = create_sidebar(uploaded_file, st.session_state.df)
 
         # Number of rows to display
         num_rows = st.slider("Number of rows to display in preview", min_value=5, max_value=100, value=10, step=5)
@@ -49,6 +53,7 @@ if uploaded_file:
         # Apply cleaning options only after file upload
         if clean_data_options:
             df = clean_data(df, clean_data_options)
+            st.session_state.df = df
 
         # Display cleaned data preview
         st.write(f"### Cleaned Data Preview ({num_rows} rows)")
@@ -157,7 +162,10 @@ if uploaded_file:
                         with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp_file:
                             image.save(tmp_file.name)
                             doc.add_heading('Generated Image:', level=1)
-                            doc.add_picture(tmp_file.name, width=Inches(6))  # Adjust the width as needed
+                            p = doc.add_paragraph()
+                            run = p.add_run()
+                            run.add_picture(tmp_file.name, width=Inches(4))  # Adjust the width as needed
+                            p.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
                         
                         # Add comments to the document
                         doc.add_heading('User Comments:', level=1)
@@ -165,10 +173,6 @@ if uploaded_file:
                             paragraph = doc.add_paragraph()
                             run = paragraph.add_run(line)
                             run.font.size = Pt(12)
-
-                        # Add some additional text content
-                        doc.add_heading('Additional Information:', level=1)
-                        doc.add_paragraph("Here you can add any additional information or summaries related to your data and analysis.")
 
                         # Save the document to a BytesIO object
                         buffer = BytesIO()
