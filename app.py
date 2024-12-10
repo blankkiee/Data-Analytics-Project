@@ -1,5 +1,6 @@
 from io import BytesIO
 # import pypandoc
+from matplotlib import pyplot as plt
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -24,7 +25,7 @@ if "text_area_content" not in st.session_state:
     st.session_state.text_area_content = ""
 
 if "chart_data" not in st.session_state:
-    st.session_state.chart_data = None,None,None,None,None,
+    st.session_state.chart_data = None,None,None,None,None,None
 
 # Sidebar logic
 uploaded_file = None  # Initialize file
@@ -59,20 +60,29 @@ if uploaded_file:
 
 
         # Chart Rendering Logic
-        chart_type, x_axis, y_axis, x_axis_dtype, y_axis_dtype = st.session_state.chart_data
+        chart_type, x_axis, y_axis, x_axis_dtype, y_axis_dtype, df_counts = st.session_state.chart_data
         if chart_type:
             if chart_type == "Bar Chart":
-                fig = px.bar(df, x=x_axis, y=y_axis, title=f"Bar Chart of {y_axis} vs {x_axis}")
+                fig = px.bar(df_counts, x=x_axis, y=y_axis, title=f"Bar Chart of {y_axis} vs {x_axis}")
                 st.plotly_chart(fig, use_container_width=True)
             elif chart_type == "Line Chart":
-                fig = px.line(df, x=x_axis, y=y_axis, title=f"Line Chart of {y_axis} over {x_axis}")
+                fig = px.line(df_counts, x=x_axis, y=y_axis, title=f"Line Chart of {y_axis} over {x_axis}")
                 st.plotly_chart(fig, use_container_width=True)
             elif chart_type == "Scatter Plot":
-                fig = px.scatter(df, x=x_axis, y=y_axis, title=f"Scatter Plot of {y_axis} vs {x_axis}")
+                fig = px.scatter(df_counts, x=x_axis, y=y_axis, title=f"Scatter Plot of {y_axis} vs {x_axis}")
                 st.plotly_chart(fig, use_container_width=True)
             elif chart_type == "Table":
                 st.write("### Full Data Table")
                 st.write(df)
+            elif chart_type == "Grouped Bar Chart":
+                st.write("### Grouped Bar Chart") 
+                fig, ax = plt.subplots(figsize=(10, 5)) 
+                df_pivot = df_counts.pivot(index=x_axis, columns=y_axis, values='counts').fillna(0) 
+                df_pivot.plot(kind='bar', ax=ax) 
+                plt.title(f"Grouped Bar Chart of {y_axis} vs {x_axis}") 
+                plt.xlabel(x_axis) 
+                plt.ylabel('Counts') 
+                st.pyplot(fig)
 
             # Add comments and download options
             st.write("### Comments or Observations")
@@ -83,59 +93,59 @@ if uploaded_file:
                 height=200,
                 value=st.session_state.text_area_content
             )
-            if st.button("Use AI") and fig is not None:
-                buffer = BytesIO()
-                fig.write_image(buffer, format="png")
-                buffer.seek(0)
-                image = Image.open(buffer)
-                response = generate_comments(image)
-                st.session_state.text_area_content = f"{response}"
-                st.rerun()
-
-
-            # Your existing code
-            st.write("### Generate Report")
-            if st.button("Generate Report"):
-                if comments.strip():
-
-                    # Create a Word document
-                    doc = Document()
-                    doc.add_heading('Report from PogiOnly', 0)
-                    
-
-                    # Add image
+            if st.button("Generate with AI 🤖") and fig is not None:
+                with st.spinner('Generating comments with AI...'):
                     buffer = BytesIO()
-                    fig.write_image(buffer, format="png")
+                    fig.savefig(buffer, format="png") if chart_type == "Grouped Bar Chart" else fig.write_image(buffer, format="png")
                     buffer.seek(0)
                     image = Image.open(buffer)
-                    with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp_file:
-                        image.save(tmp_file.name)
-                        doc.add_heading('Generated Image:', level=1)
-                        doc.add_picture(tmp_file.name, width=Inches(4.0))
+                    response = generate_comments(image)
+                    st.session_state.text_area_content = f"{response}"
+                    st.rerun()
+
+
+            st.write("### Generate Report")
+            if st.button("Generate Report"):
+                with st.spinner('Generating report...'):
+                    if comments.strip():
+                        # Create a Word document
+                        doc = Document()
+                        doc.add_heading('Report from PogiOnly', 0)
+                        
+
+                        # Add image
+                        buffer = BytesIO()
+                        fig.savefig(buffer, format="png") if chart_type == "Grouped Bar Chart" else fig.write_image(buffer, format="png")
+                        buffer.seek(0)
+                        image = Image.open(buffer)
+                        with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp_file:
+                            image.save(tmp_file.name)
+                            doc.add_heading('Generated Image:', level=1)
+                            doc.add_picture(tmp_file.name, width=Inches(6.0))
+                        
+
+                        # Add comments to the document
+                        doc.add_heading('User Comments:', level=1)
+                        for line in comments.split('\n'):
+                            paragraph = doc.add_paragraph()
+                            run = paragraph.add_run(line)
+                            run.font.size = Pt(12)
+
+                        # Add some additional text content
+                        doc.add_heading('Additional Information:', level=1)
+                        doc.add_paragraph("Here you can add any additional information or summaries related to your data and analysis.")
+
+
+                        # Save the document to a BytesIO object
+                        buffer = BytesIO()
+                        doc.save(buffer)
+                        buffer.seek(0)
+
+                        st.success("Report Generated!")
+                        st.download_button( label="Download DOCX Report", data=buffer, file_name="report_with_comments.docx", mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document" )
                     
-
-                    # Add comments to the document
-                    doc.add_heading('User Comments:', level=1)
-                    for line in comments.split('\n'):
-                        paragraph = doc.add_paragraph()
-                        run = paragraph.add_run(line)
-                        run.font.size = Pt(12)
-
-                    # Add some additional text content
-                    doc.add_heading('Additional Information:', level=1)
-                    doc.add_paragraph("Here you can add any additional information or summaries related to your data and analysis.")
-
-
-                    # Save the document to a BytesIO object
-                    buffer = BytesIO()
-                    doc.save(buffer)
-                    buffer.seek(0)
-
-                    st.success("Report Generated!")
-                    st.download_button( label="Download DOCX Report", data=buffer, file_name="report_with_comments.docx", mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document" )
-                   
-                else:
-                    st.warning("Please add comments before generating the report.")
+                    else:
+                        st.warning("Please add comments before generating the report.")
 
     except Exception as e:
         st.error(f"An error occurred while processing the file: {e}")

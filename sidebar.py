@@ -8,6 +8,8 @@ def create_sidebar(uploaded_file, df):
     y_axis = None
     x_axis_dtype = None
     y_axis_dtype = None
+    aggregation_method = None
+    
     with st.sidebar: 
         # LOGO
         st.markdown("""
@@ -22,6 +24,7 @@ def create_sidebar(uploaded_file, df):
             st.info("🟡 Data is dirty")
         else:
             st.info("🟢 Data is clean")
+        
         # Data Cleaning Options
         st.divider()
         with st.expander("Clean"):
@@ -36,10 +39,10 @@ def create_sidebar(uploaded_file, df):
             }
 
         with st.expander("Visualize"):
-            #  Revised Layout for X and Y Axis Dropdowns
+            # Revised Layout for X and Y Axis Dropdowns
             col1, col2 = st.columns(2)
             with col1:
-                # st.write("X axis")
+                # x-axis selectbox
                 x_axis = st.selectbox("X axis", df.columns, key="x_axis")
                 x_axis_dtype = df[x_axis].dtype
                 if x_axis_dtype == 'object': 
@@ -47,22 +50,44 @@ def create_sidebar(uploaded_file, df):
                     x_axis_dtype = type(sample_value).__name__
 
             with col2:
-                # st.write("Y axis")
+                # y-axis selectbox
                 y_axis = st.selectbox("Y axis", df.columns, key="y_axis")
-                y_axis_dtype = df[x_axis].dtype
+                y_axis_dtype = df[y_axis].dtype
                 if y_axis_dtype == 'object': 
                     sample_value = df[y_axis].iloc[0] 
                     y_axis_dtype = type(sample_value).__name__
 
-            # suggestion = suggest_chart(x_axis, x_axis_dtype, y_axis, y_axis_dtype)
-            # st.write(suggestion)
-            
-            # Chart Type Dropdown Below the Axes
-            # st.markdown("<label style='font-weight: bold; font-size: 14px;'>Chart Type</label>", unsafe_allow_html=True)
-            chart_type = st.selectbox("Chart Type", ["Bar Chart", "Line Chart", "Scatter Plot", "Table"], key="chart_type")
-            if st.button("Visualize!"):
-                st.session_state.chart_data = chart_type, x_axis, y_axis, x_axis_dtype, y_axis_dtype
-                return clean_data_options
+            # Aggregation method dropdown
+            aggregation_method = st.selectbox(
+                "Aggregation Method", 
+                ["Count", "Sum", "Average", "Min", "Max", "Median", "Mode"], 
+                key="aggregation_method"
+            )
 
-        
+            suggestion = suggest_chart(x_axis, x_axis_dtype, y_axis, y_axis_dtype, aggregation_method)
+            st.write(suggestion)
+            # Chart Type Dropdown Below the Axes
+            chart_type = st.selectbox("Chart Type", ["Bar Chart", "Line Chart", "Scatter Plot", "Grouped Bar Chart", "Table"], key="chart_type")
+            if st.button("Visualize!"):
+                # Apply aggregation if selected
+                if aggregation_method == "Count" or x_axis_dtype == 'object' or y_axis_dtype == 'object': 
+                    # Count occurrences for categorical data 
+                    df_counts = df.groupby([x_axis, y_axis]).size().reset_index(name='counts')
+                elif aggregation_method == "Sum":
+                    df_counts = df.groupby(x_axis)[y_axis].sum().reset_index()
+                elif aggregation_method == "Average":
+                    df_counts = df.groupby(x_axis)[y_axis].mean().reset_index()
+                elif aggregation_method == "Min":
+                    df_counts = df.groupby(x_axis)[y_axis].min().reset_index()
+                elif aggregation_method == "Max":
+                    df_counts = df.groupby(x_axis)[y_axis].max().reset_index()
+                elif aggregation_method == "Median":
+                    df_counts = df.groupby(x_axis)[y_axis].median().reset_index()
+                elif aggregation_method == "Mode":
+                    df_counts = df.groupby(x_axis)[y_axis].apply(lambda x: x.mode()[0]).reset_index()
+                else: 
+                    df_counts = df
+
+                st.session_state.chart_data = chart_type, x_axis, y_axis, x_axis_dtype, y_axis_dtype, df_counts
+                return clean_data_options
         return clean_data_options
