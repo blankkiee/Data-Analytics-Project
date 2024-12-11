@@ -84,7 +84,7 @@ def create_sidebar(uploaded_file, df):
             suggestion = suggest_chart(x_axis, x_axis_dtype, y_axis, y_axis_dtype, aggregation_method)
             st.write(suggestion)
             # Chart Type Dropdown Below the Axes
-            chart_type = st.selectbox("Chart Type", ["Bar Chart", "Line Chart", "Scatter Plot", "Grouped Bar Chart", "Layered Histogram", "Table"], key="chart_type")
+            chart_type = st.selectbox("Chart Type", ["Bar Chart", "Line Chart", "Scatter Plot", "Grouped Bar Chart", "Layered Histogram", "Pie Chart","Table"], key="chart_type")
             if st.button("Visualize!"):
                 # Apply aggregation if selected
                 if aggregation_method == "Count" or x_axis_dtype == 'object' or y_axis_dtype == 'object': 
@@ -160,4 +160,11 @@ def create_sidebar(uploaded_file, df):
             else:
                 st.warning("Clean the data first", icon="🟡")
 
+        if is_clean:
+            st.download_button(
+                label="Download Clean CSV",
+                data=df.to_csv(index=False),
+                file_name="clean_data.csv",
+                mime="text/csv",
+            )
         return clean_data_options

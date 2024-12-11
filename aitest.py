@@ -25,7 +25,7 @@ def suggest_chart(x, x_type, y, y_type, agg_method):
     if x == y:
         return "Oops, your X and Y axes are the same. Try choosing another column"
 
-    prompt = f'in the selection of Bar Chart, Line Chart, Grouped Bar Chart and Scatter Plot, Layered Histogram, what is the best graph to plot when the X axis is {x} with a type of {x_type} and the Y axis is the {agg_method} of {y} with a type of {y_type}. Format your answer to "With {x} on the X axis and {agg_method} of {y} on the Y axis, the best graph is _______"'
+    prompt = f'in the selection of Bar Chart, Line Chart, Grouped Bar Chart and Scatter Plot, Layered Histogram, Pie Chart what is the best graph to plot when the X axis is {x} with a type of {x_type} and the Y axis is the {agg_method} of {y} with a type of {y_type}. Format your answer to "With {x} on the X axis and {agg_method} of {y} on the Y axis, the best graph is _______"'
 
     response = model.generate_content(prompt)
     return response.text

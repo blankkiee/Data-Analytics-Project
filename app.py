@@ -157,6 +157,17 @@ if uploaded_file:
                         ).interactive() 
                 st.altair_chart(chart, use_container_width=True)
 
+            elif chart_type == "Pie Chart": 
+                st.write("### Pie Chart") 
+                chart = alt.Chart(df_counts).mark_arc().encode( 
+                    theta=alt.Theta(field=y_axis_name, type="quantitative"), 
+                    color=alt.Color(field=x_axis, type="nominal"), 
+                    tooltip=[x_axis, y_axis_name] 
+                    ).properties( 
+                        title=f"Pie Chart of {agg_method} {y_axis} by {x_axis}", width=400, height=400 
+                        ).interactive() 
+                st.altair_chart(chart, use_container_width=True)
+
             pred_chart, pred_x, pred_y = st.session_state.prediction_chart
             if pred_chart:
                 st.write(f"### Prediction of {pred_x} vs {pred_y}")
@@ -174,9 +185,12 @@ if uploaded_file:
             if st.button("Generate with AI 🤖") and chart is not None:
                 with st.spinner('Generating comments with AI...'):
                     chart_json = chart.to_json()
-                    # image = save_chart(chart)
-                    pred_json = pred_chart.to_json()
-                    response = generate_comments(chart_json, pred_json)
+                    if pred_chart != None:
+                        pred_json = pred_chart.to_json()
+                    else:
+                        pred_json = None
+                    # # image = save_chart(chart)
+                    response = generate_comments(chart_json, pred_json  )
                     st.session_state.text_area_content = f"{response}"
                     st.rerun()
 
